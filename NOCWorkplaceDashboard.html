@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Workplace Dashboard – Cloud Health & Microsoft Monitor - Porjeto Piloto - Enzzo Joaquim</title>
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+body {
+background: #0a0c10;
+font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, 'Space Grotesk', sans-serif;
+color: #eef2ff;
+padding: 20px;
+}
+
+.dashboard {
+max-width: 1800px;
+margin: 0 auto;
+}
+
+/* Header */
+.noc-header {
+display: flex;
+justify-content: space-between;
+align-items: baseline;
+flex-wrap: wrap;
+gap: 16px;
+margin-bottom: 32px;
+border-bottom: 2px solid #1e2a3a;
+padding-bottom: 16px;
+}
+
+.title-section h1 {
+font-size: 1.6rem;
+font-weight: 600;
+background: linear-gradient(135deg, #a5f3fc, #38bdf8);
+-webkit-background-clip: text;
+background-clip: text;
+color: transparent;
+}
+
+.refresh-btn {
+background: #1e2a3a;
+border: 1px solid #2d3e50;
+padding: 8px 20px;
+border-radius: 40px;
+color: #b9d0f0;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.2s;
+}
+
+.refresh-btn:hover {
+background: #2d4a6e;
+color: white;
+border-color: #38bdf8;
+}
+
+/* Cards de Health */
+.health-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+gap: 20px;
+margin-bottom: 40px;
+}
+
+.health-card {
+background: #0f1219;
+border-radius: 24px;
+border: 1px solid #1f2a3a;
+padding: 18px;
+transition: 0.2s;
+box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.health-card:hover {
+border-color: #2e4a6a;
+transform: translateY(-2px);
+}
+
+.provider-name {
+font-size: 1.4rem;
+font-weight: 700;
+margin-bottom: 16px;
+}
+
+.status-badge {
+display: inline-block;
+padding: 5px 12px;
+border-radius: 40px;
+font-size: 0.75rem;
+font-weight: bold;
+font-family: monospace;
+margin-top: 6px;
+}
+
+.status-green { background: #0a4a2e; color: #8bffc2; border-left: 4px solid #2ecc71; }
+.status-yellow { background: #5e3a1a; color: #ffd966; border-left: 4px solid #f1c40f; }
+.status-red { background: #6b1a1a; color: #ffaaaa; border-left: 4px solid #e74c3c; }
+.status-gray { background: #2c3e50; color: #b0c4de; border-left: 4px solid #7f8c8d; }
+
+.status-message {
+font-size: 0.8rem;
+margin-top: 12px;
+color: #b9cef0;
+word-break: break-word;
+}
+
+.status-message a {
+color: #6caeff;
+text-decoration: none;
+}
+.status-message a:hover { text-decoration: underline; }
+
+.last-check {
+font-size: 0.7rem;
+color: #5a6e85;
+margin-top: 15px;
+text-align: right;
+}
+
+/* Data Cards (sem rolagem horizontal) */
+.data-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
+gap: 24px;
+margin-top: 20px;
+}
+
+.data-card {
+background: #0c0f16;
+border-radius: 28px;
+border: 1px solid #222c3a;
+padding: 18px;
+}
+
+.data-card h3 {
+color: #6caeff;
+font-size: 1.2rem;
+margin-bottom: 16px;
+border-left: 4px solid #2e86de;
+padding-left: 14px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+flex-wrap: wrap;
+gap: 8px;
+}
+
+.external-link {
+font-size: 0.7rem;
+background: #1e2a3a;
+padding: 4px 10px;
+border-radius: 20px;
+text-decoration: none;
+color: #8ca3b9;
+}
+.external-link:hover { background: #2d4a6e; color: white; }
+
+.card-timestamp {
+font-size: 0.7rem;
+color: #7aa2f7;
+font-family: monospace;
+margin-bottom: 12px;
+text-align: right;
+}
+
+ul {
+list-style: none;
+margin: 0;
+padding: 0;
+}
+
+li {
+padding: 10px 0;
+border-bottom: 1px solid #1e293b;
+display: flex;
+flex-wrap: wrap;
+justify-content: space-between;
+align-items: center;
+gap: 10px;
+font-size: 0.85rem;
+}
+
+/* Em telas muito pequenas, permite quebra de linha sem barra de rolagem */
+@media (max-width: 600px) {
+li {
+flex-direction: column;
+align-items: flex-start;
+}
+}
+
+.tag {
+padding: 3px 8px;
+border-radius: 40px;
+font-size: 0.7rem;
+font-weight: bold;
+white-space: nowrap;
+}
+
+.critical { background: #b91c1c; }
+.high { background: #b45309; }
+.medium { background: #5e5e0e; }
+
+.date {
+color: #7aa2f7;
+font-family: monospace;
+font-size: 0.7rem;
+white-space: nowrap;
+}
+
+.item-link {
+color: #6caeff;
+text-decoration: none;
+}
+.item-link:hover { text-decoration: underline; }
+
+.desc-text {
+flex: 1;
+word-break: break-word;
+}
+
+footer {
+text-align: center;
+margin-top: 48px;
+font-size: 0.7rem;
+color: #4b556b;
+}
+</style>
+</head>
+<body>
+<div class="dashboard">
+<div class="noc-header">
+<div class="title-section">
+<h1>📡 Workplace Dashboard – Cloud Health & Microsoft Monitor - Projeto Piloto - Enzzo Joaquim</h1>
+<p>Azure · AWS · Google Cloud · Cloudflare | Microsoft Security Monitor</p>
+</div>
+<button class="refresh-btn" id="refreshAllBtn">⟳ ATUALIZAR TODOS OS STATUS</button>
+</div>
+
+<div class="health-grid" id="healthContainer">
+<div class="health-card">Carregando status da AWS...</div>
+<div class="health-card">Carregando status do Azure...</div>
+<div class="health-card">Carregando status do Google Cloud...</div>
+<div class="health-card">Carregando status da Cloudflare...</div>
+</div>
+
+<div class="data-grid" id="dataGrid">
+<!-- Os cards de dados serão preenchidos via JS com o timestamp unificado -->
+</div>
+<footer>📡 Fontes: AWS (RSS via proxy) · Azure (feed RSS) · Google Cloud (incidents.json) · Cloudflare (API status).<br>
+Dados Microsoft baseados em fontes mockadas com links oficiais. Auto-refresh a cada 60s.
+</footer>
+</div>
+
+<script>
+// ----- TIMESTAMP GLOBAL -----
+let globalTimestamp = new Date();
+
+// ----- MOCK DE DADOS MICROSOFT (com data/hora da última ocorrência simulada) -----
+const lastUpdateDate = "15/04/2025 10:30";
+const cveData = [
+{ id: "CVE-2025-21982", score: "9.8", desc: "RCE no Windows DNS - Crítico", severity: "critical", link: "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-21982", lastSeen: "15/04/2025" },
+{ id: "CVE-2025-21345", score: "8.2", desc: "Elevação de privilégios no Entra ID", severity: "high", link: "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-21345", lastSeen: "14/04/2025" },
+{ id: "CVE-2025-11023", score: "7.5", desc: "DoS no Exchange Server", severity: "high", link: "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-11023", lastSeen: "12/04/2025" },
+{ id: "CVE-2025-09341", score: "6.8", desc: "Spoofing no Microsoft Teams", severity: "medium", link: "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-09341", lastSeen: "10/04/2025" }
+];
+
+const patchesData = [
+{ kb: "KB5051974", desc: "Patch de segurança para Windows 11 24H2", date: "15/04/2025", severity: "critical", link: "https://www.catalog.update.microsoft.com/Search.aspx?q=KB5051974" },
+{ kb: "KB5051980", desc: "Atualização cumulativa do .NET Framework", date: "10/04/2025", severity: "high", link: "https://www.catalog.update.microsoft.com/Search.aspx?q=KB5051980" },
+{ kb: "KB5051452", desc: "Correção crítica do Office (CVE-2025-21982)", date: "08/04/2025", severity: "high", link: "https://www.catalog.update.microsoft.com/Search.aspx?q=KB5051452" },
+{ kb: "KB5050021", desc: "Servicing Stack para Server 2022", date: "01/04/2025", severity: "medium", link: "https://www.catalog.update.microsoft.com/Search.aspx?q=KB5050021" }
+];
+
+const incidentsM365 = [
+{ id: "MO987654", title: "Acesso condicional - delays no login", status: "Mitigando", updated: "2h atrás", severity: "critical", link: "https://admin.microsoft.com/Adminportal/Home?#/servicehealth" },
+{ id: "MO455123", title: "Exchange Online - fila de emails", status: "Investigando", updated: "45m atrás", severity: "critical", link: "https://admin.microsoft.com/Adminportal/Home?#/servicehealth" },
+{ id: "MO789321", title: "SharePoint performance degradada - EMEA", status: "Monitorando", updated: "3h atrás", severity: "high", link: "https://admin.microsoft.com/Adminportal/Home?#/servicehealth" }
+];
+
+const roadmapItems = [
+{ feature: "Novo Copilot no Planner", quarter: "Q3 2025", status: "em desenvolvimento", link: "https://www.microsoft.com/en-us/microsoft-365/roadmap?filters=searchterms%2Ccopilot", lastUpdate: "Abril/2025" },
+{ feature: "Teams: Central de Notificações Unificada", quarter: "Q2 2025", status: "pré-visualização", link: "https://www.microsoft.com/en-us/microsoft-365/roadmap", lastUpdate: "Março/2025" },
+{ feature: "Purview DLP para iOS", quarter: "Q3 2025", status: "planejado", link: "https://www.microsoft.com/en-us/microsoft-365/roadmap", lastUpdate: "Abril/2025" },
+{ feature: "Loop Workspaces offline", quarter: "Q2 2025", status: "lançamento incremental", link: "https://www.microsoft.com/en-us/microsoft-365/roadmap", lastUpdate: "Fevereiro/2025" }
+];
+
+const releases = [
+{ name: "Microsoft Graph v1.63", date: "25/04/2025", desc: "APIs de segurança aprimoradas", link: "https://learn.microsoft.com/en-us/officeupdates/", lastSeen: "25/04/2025" },
+{ name: "Azure Firewall Manager", date: "20/04/2025", desc: "Políticas com IP Groups", link: "https://learn.microsoft.com/en-us/azure/firewall-manager/", lastSeen: "20/04/2025" },
+{ name: "Office 365 (Current Channel)", date: "18/04/2025", desc: "Novo design de comentários", link: "https://learn.microsoft.com/en-us/officeupdates/current-channel", lastSeen: "18/04/2025" }
+];
+
+function renderMockData() {
+const dataGrid = document.getElementById('dataGrid');
+const timeString = globalTimestamp.toLocaleTimeString();
+const dateString = globalTimestamp.toLocaleDateString();
+
+// Constrói os cards HTML
+dataGrid.innerHTML = `
+<!-- CVEs -->
+<div class="data-card">
+<h3>🛡️ CVEs Críticos <a href="https://msrc.microsoft.com/update-guide/" target="_blank" class="external-link">🔗 MSRC</a></h3>
+<div class="card-timestamp">📅 Última atualização: ${dateString} ${timeString}</div>
+<ul>
+${cveData.map(cve => `
+<li>
+<span class="desc-text"><strong><a href="${cve.link}" target="_blank" class="item-link">${cve.id}</a></strong> (CVSS ${cve.score}) – ${cve.desc}</span>
+<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+<span class="tag ${cve.severity}">${cve.severity.toUpperCase()}</span>
+<span class="date">📆 ${cve.lastSeen}</span>
+</div>
+</li>
+`).join('')}
+</ul>
+</div>
+<!-- Security Patches -->
+<div class="data-card">
+<h3>📦 Security Patches <a href="https://www.catalog.update.microsoft.com/" target="_blank" class="external-link">🔗 Update Catalog</a></h3>
+<div class="card-timestamp">📅 Última atualização: ${dateString} ${timeString}</div>
+<ul>
+${patchesData.map(p => `
+<li>
+<span class="desc-text"><strong><a href="${p.link}" target="_blank" class="item-link">${p.kb}</a></strong> – ${p.desc}</span>
+<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+<span class="tag ${p.severity}">${p.severity.toUpperCase()}</span>
+<span class="date">📆 ${p.date}</span>
+</div>
+</li>
+`).join('')}
+</ul>
+</div>
+<!-- Incidentes M365 -->
+<div class="data-card">
+<h3>⚠️ Incidentes M365 Ativos <a href="https://admin.microsoft.com/Adminportal/Home?#/servicehealth" target="_blank" class="external-link">🔗 Service Health</a></h3>
+<div class="card-timestamp">📅 Última ocorrência: ${dateString} ${timeString}</div>
+<ul>
+${incidentsM365.map(inc => `
+<li>
+<span class="desc-text">🔔 <strong><a href="${inc.link}" target="_blank" class="item-link">${inc.id}</a></strong> – ${inc.title}</span>
+<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+<span class="tag ${inc.severity === 'critical' ? 'critical' : 'high'}">${inc.status}</span>
+<span class="date">⏱️ ${inc.updated}</span>
+</div>
+</li>
+`).join('')}
+</ul>
+</div>
+<!-- Roadmap -->
+<div class="data-card">
+<h3>🗺️ Microsoft 365 Roadmap <a href="https://www.microsoft.com/en-us/microsoft-365/roadmap" target="_blank" class="external-link">🔗 Ver Oficial</a></h3>
+<div class="card-timestamp">📅 Última atualização: ${dateString} ${timeString}</div>
+<ul>
+${roadmapItems.map(r => `
+<li>
+<span class="desc-text">📌 <a href="${r.link}" target="_blank" class="item-link">${r.feature}</a></span>
+<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+<span>${r.status} · ${r.quarter}</span>
+<span class="date">🔄 ${r.lastUpdate}</span>
+</div>
+</li>
+`).join('')}
+</ul>
+</div>
+<!-- Releases -->
+<div class="data-card">
+<h3>🚀 Recent Releases / Updates <a href="https://learn.microsoft.com/en-us/officeupdates/" target="_blank" class="external-link">🔗 Release Notes</a></h3>
+<div class="card-timestamp">📅 Última publicação: ${dateString} ${timeString}</div>
+<ul>
+${releases.map(r => `
+<li>
+<span class="desc-text">🚀 <strong><a href="${r.link}" target="_blank" class="item-link">${r.name}</a></strong> – ${r.desc}</span>
+<div style="display: flex; gap: 8px; align-items: center;">
+<span class="date">📆 ${r.date}</span>
+</div>
+</li>
+`).join('')}
+</ul>
+</div>
+`;
+}
+
+// ----- FUNÇÕES DE HEALTH COM PROXY ROBUSTO (allorigins.win) -----
+const PROXY = 'https://api.allorigins.win/raw?url=';
+
+async function fetchAWSStatus() {
+try {
+const url = PROXY + encodeURIComponent('https://status.aws.amazon.com/rss/all.rss');
+const response = await fetch(url);
+const text = await response.text();
+const parser = new DOMParser();
+const xml = parser.parseFromString(text, "text/xml");
+// Verifica se há erro de parse
+if (xml.querySelector('parsererror')) throw new Error('Erro no parse do RSS');
+const items = xml.querySelectorAll("item");
+let hasError = false;
+let latestTitle = "";
+for (let i = 0; i < Math.min(items.length, 6); i++) {
+const title = items[i].querySelector("title")?.textContent || "";
+if (title.toLowerCase().includes("degraded") || title.toLowerCase().includes("interruption") || title.toLowerCase().includes("outage")) {
+hasError = true;
+latestTitle = title;
+break;
+}
+}
+if (hasError) {
+return { provider: "AWS", status: "Degradação Detectada", indicator: "yellow", message: latestTitle.substring(0, 140), color: "yellow" };
+} else {
+return { provider: "AWS", status: "Operacional", indicator: "green", message: "Todos os serviços AWS com funcionamento normal", color: "green" };
+}
+} catch(e) {
+console.warn("AWS fetch error", e);
+return { provider: "AWS", status: "Feed Indisponível", indicator: "gray", message: "Falha na consulta RSS. Clique em atualizar para tentar novamente.", color: "gray" };
+}
+}
+
+async function fetchAzureStatus() {
+try {
+const url = PROXY + encodeURIComponent('https://status.azure.com/en-us/status/feed/');
+const response = await fetch(url);
+const text = await response.text();
+const parser = new DOMParser();
+const xml = parser.parseFromString(text, "text/xml");
+if (xml.querySelector('parsererror')) throw new Error('Erro no parse do feed');
+const items = xml.querySelectorAll("item");
+let hasIssue = false;
+let issueTitle = "";
+for (let i = 0; i < Math.min(items.length, 8); i++) {
+const title = items[i].querySelector("title")?.textContent || "";
+if (title.toLowerCase().includes("degraded") || title.toLowerCase().includes("unhealthy") || title.toLowerCase().includes("outage")) {
+hasIssue = true;
+issueTitle = title;
+break;
+}
+}
+if (hasIssue) {
+return { provider: "Azure", status: "Problema Detectado", indicator: "yellow", message: issueTitle.substring(0, 140), color: "yellow" };
+} else {
+return { provider: "Azure", status: "Operacional", indicator: "green", message: "Status reportado: saudável", color: "green" };
+}
+} catch(e) {
+console.warn("Azure fetch error", e);
+return { provider: "Azure", status: "Feed Indisponível", indicator: "gray", message: "Erro no feed Azure. Tente novamente em alguns instantes.", color: "gray" };
+}
+}
+
+async function fetchGoogleStatus() {
+try {
+const response = await fetch('https://status.cloud.google.com/incidents.json?format=json');
+const incidents = await response.json();
+let hasCritical = false;
+if (Array.isArray(incidents)) {
+hasCritical = incidents.some(inc => inc.severity === "500" || inc.severity === "700" || (inc.begin && !inc.end));
+}
+if (hasCritical) {
+return { provider: "Google Cloud", status: "Incidente Crítico", indicator: "red", message: "Incidente grave em andamento", color: "red" };
+} else {
+return { provider: "Google Cloud", status: "Operacional", indicator: "green", message: "Nenhum incidente ativo grave", color: "green" };
+}
+} catch(e) {
+return { provider: "Google Cloud", status: "Erro de Consulta", indicator: "gray", message: "Não foi possível obter status", color: "gray" };
+}
+}
+
+async function fetchCloudflareStatus() {
+try {
+const res = await fetch('https://www.cloudflarestatus.com/api/v2/incidents/unresolved.json');
+const data = await res.json();
+if (data.incidents && data.incidents.length > 0) {
+const incident = data.incidents[0];
+const incidentLink = `https://www.cloudflarestatus.com/incidents/${incident.id}`;
+return {
+provider: "Cloudflare",
+status: "Incidente Ativo",
+indicator: "red",
+message: `<a href="${incidentLink}" target="_blank">${incident.name}</a> - ${incident.status}`,
+color: "red"
+};
+} else {
+const statusRes = await fetch('https://www.cloudflarestatus.com/api/v2/status.json');
+const statusData = await statusRes.json();
+const indicator = statusData.status.indicator;
+if (indicator === "none") {
+return { provider: "Cloudflare", status: "Operacional", indicator: "green", message: "Todos os sistemas funcionando", color: "green" };
+} else {
+return { provider: "Cloudflare", status: "Possível Degradação", indicator: "yellow", message: "Incidente menor reportado", color: "yellow" };
+}
+}
+} catch(e) {
+return { provider: "Cloudflare", status: "API Inacessível", indicator: "gray", message: "Erro na consulta", color: "gray" };
+}
+}
+
+async function updateAllHealth() {
+const container = document.getElementById('healthContainer');
+container.innerHTML = `<div class="health-card">🔄 AWS...</div><div class="health-card">🔄 Azure...</div><div class="health-card">🔄 Google Cloud...</div><div class="health-card">🔄 Cloudflare...</div>`;
+
+const [aws, azure, google, cf] = await Promise.all([
+fetchAWSStatus(), fetchAzureStatus(), fetchGoogleStatus(), fetchCloudflareStatus()
+]);
+
+const cardsHtml = [aws, azure, google, cf].map(provider => {
+let statusClass = "";
+if (provider.color === "green") statusClass = "status-green";
+else if (provider.color === "yellow") statusClass = "status-yellow";
+else if (provider.color === "red") statusClass = "status-red";
+else statusClass = "status-gray";
+
+return `
+<div class="health-card">
+<div class="provider-name">${provider.provider}</div>
+<div class="status-badge ${statusClass}">${provider.status}</div>
+<div class="status-message">📢 ${provider.message}</div>
+<div class="last-check">🕒 última leitura: ${globalTimestamp.toLocaleTimeString()}</div>
+</div>
+`;
+}).join('');
+container.innerHTML = cardsHtml;
+}
+
+function fullRefresh() {
+globalTimestamp = new Date();
+renderMockData(); // recria os cards de dados com novo timestamp
+updateAllHealth(); // atualiza a saúde das clouds
+}
+
+// Atualização automática a cada 60 segundos
+setInterval(() => { fullRefresh(); }, 60000);
+document.getElementById('refreshAllBtn').addEventListener('click', () => { fullRefresh(); });
+fullRefresh();
+</script>
+</body>
+</html>
